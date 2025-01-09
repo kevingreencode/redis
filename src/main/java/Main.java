@@ -23,7 +23,7 @@ public class Main {
 
       // Event loop
       while (true) {
-        System.out.print("Waiting for events...");
+        System.out.println("Waiting for events...");
         selector.select();
 
         // Process the events
