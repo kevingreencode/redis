@@ -19,20 +19,6 @@ public class Main {
 
     try {
 
-      // String response = "+PONG\r\n";
-      // byte[] byteArray = response.getBytes();
-
-      // // Print raw byte array (default `toString()` won't show the values)
-      // System.out.println(byteArray);
-
-      // // Print byte array values using Arrays.toString()
-      // System.out.println(Arrays.toString(byteArray));
-
-      // // Print each byte individually
-      // for (byte b : byteArray) {
-      // System.out.println(b);
-      // }
-
       serverSocket = new ServerSocket(port);
       serverSocket.setReuseAddress(true);
       clientSocket = serverSocket.accept();
