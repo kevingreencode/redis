@@ -74,7 +74,7 @@ public class Main {
     System.out.println("Received: " + message + "...");
 
     // RESP Parsing: Check for '*1 $4 PING'
-    if (message.startsWith("*1") && message.contains("$4") && message.endsWith("PING")) {
+    if (message.endsWith("PING")) {
       clientChannel.write(ByteBuffer.wrap("+PONG\r\n".getBytes())); // Simple string response
     } else {
       clientChannel.write(ByteBuffer.wrap("-ERROR unknown command\r\n".getBytes())); // RESP error response
