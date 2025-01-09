@@ -45,6 +45,7 @@ public class Main {
   }
 
   private static void handleAccept(SelectionKey key) throws IOException {
+    System.out.println("Handle accept...");
     ServerSocketChannel serverChannel = (ServerSocketChannel) key.channel();
     SocketChannel clientChannel = serverChannel.accept(); // Accept the connection
     clientChannel.configureBlocking(false); // Set the client channel to non-blocking
@@ -56,6 +57,7 @@ public class Main {
   }
 
   private static void handleRead(SelectionKey key) throws IOException {
+    System.out.println("Handle read...");
     SocketChannel clientChannel = (SocketChannel) key.channel();
     ByteBuffer buffer = ByteBuffer.allocate(1024);
 
