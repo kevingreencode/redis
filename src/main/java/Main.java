@@ -1,13 +1,17 @@
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.InputStreamReader;
+import java.io.BufferedReader;
+
 import java.net.ServerSocket;
 import java.net.Socket;
+
 import java.util.Arrays;
 
 public class Main {
   public static void main(String[] args) {
 
-    System.out.println("Logs from your program will appear here!");
+    System.out.println("Redis server is running!");
 
     ServerSocket serverSocket = null;
     Socket clientSocket = null;
@@ -26,14 +30,30 @@ public class Main {
 
       // // Print each byte individually
       // for (byte b : byteArray) {
-      //     System.out.println(b);
+      // System.out.println(b);
       // }
 
       serverSocket = new ServerSocket(port);
       serverSocket.setReuseAddress(true);
       clientSocket = serverSocket.accept();
+
+      System.out.println("Client connected!");
+
+      byte[] response = "+PONG\r\n".getBytes();
+      InputStreamReader inputStreamReader = new InputStreamReader(clientSocket.getInputStream());
+      BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+      String command;
+
       OutputStream out = clientSocket.getOutputStream();
-      out.write("+PONG\r\n".getBytes());
+
+      while ((command = bufferedReader.readLine()) != null) {
+        System.out.println("Received command: " + command.trim());
+
+        if ("PING".equalsIgnoreCase(command.trim())) {
+          out.write(response);
+          out.flush();
+        }
+      }
 
     } catch (IOException e) {
 
