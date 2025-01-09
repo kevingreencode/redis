@@ -21,21 +21,24 @@ public class Main {
 
       serverSocket = new ServerSocket(port);
       serverSocket.setReuseAddress(true);
-      clientSocket = serverSocket.accept();
 
+      // Wait for a connection
+      clientSocket = serverSocket.accept();
+      // Connection made
       System.out.println("Client connected!");
 
-      byte[] response = "+PONG\r\n".getBytes();
+      byte[] response = "+PONG\r\n".getBytes(); // temporary hard coded response
       InputStreamReader inputStreamReader = new InputStreamReader(clientSocket.getInputStream());
-      BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+      BufferedReader bufferedReader = new BufferedReader(inputStreamReader); // For handling text
       String command;
 
-      OutputStream out = clientSocket.getOutputStream();
+      OutputStream out = clientSocket.getOutputStream(); // to write back to the client
+      
+      // process one command at a time
+      while ((command = bufferedReader.readLine().trim()) != null) {
+        System.out.println("Received command: " + command);
 
-      while ((command = bufferedReader.readLine()) != null) {
-        System.out.println("Received command: " + command.trim());
-
-        if ("PING".equalsIgnoreCase(command.trim())) {
+        if ("PING".equalsIgnoreCase(command)) {
           out.write(response);
           out.flush();
         }
