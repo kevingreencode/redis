@@ -71,7 +71,7 @@ public class Main {
 
     buffer.flip();
     String message = new String(buffer.array(), 0, buffer.limit()).trim();
-    System.out.println("Received: " + message);
+    System.out.println("Received: " + message + "...");
 
     // RESP Parsing: Check for '*1 $4 PING'
     if (message.startsWith("*1") && message.contains("$4") && message.endsWith("PING")) {
