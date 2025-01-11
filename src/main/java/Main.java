@@ -14,23 +14,19 @@ public class Main {
 
       // Configure the server channel to be non-blocking
       serverSocketChannel.configureBlocking(false);
-      serverSocketChannel.bind(new InetSocketAddress(6379)); // Bind to port 6379
-
-      // Register the server channel with the selector for accept events
+      serverSocketChannel.bind(new InetSocketAddress(6379));
       serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT);
-
       System.out.println("Server started on port 6379...");
 
       // Event loop
       while (true) {
-        System.out.println("Waiting for events...");
         selector.select();
 
-        // Process the events
+        // Process events
         Iterator<SelectionKey> keyIterator = selector.selectedKeys().iterator();
         while (keyIterator.hasNext()) {
           SelectionKey key = keyIterator.next();
-          keyIterator.remove(); // Remove the processed key
+          keyIterator.remove();
 
           if (key.isAcceptable()) {
             handleAccept(key);
@@ -45,25 +41,19 @@ public class Main {
   }
 
   private static void handleAccept(SelectionKey key) throws IOException {
-    System.out.println("Handle accept...");
     ServerSocketChannel serverChannel = (ServerSocketChannel) key.channel();
-    SocketChannel clientChannel = serverChannel.accept(); // Accept the connection
-    clientChannel.configureBlocking(false); // Set the client channel to non-blocking
-
-    // Register the client channel with the selector for read events
+    SocketChannel clientChannel = serverChannel.accept();
+    clientChannel.configureBlocking(false);
     clientChannel.register(key.selector(), SelectionKey.OP_READ);
-
     System.out.println("Accepted new connection from " + clientChannel.getRemoteAddress());
   }
 
   private static void handleRead(SelectionKey key) throws IOException {
-    System.out.println("Handle read...");
     SocketChannel clientChannel = (SocketChannel) key.channel();
     ByteBuffer buffer = ByteBuffer.allocate(1024);
 
     int bytesRead = clientChannel.read(buffer);
     if (bytesRead == -1) {
-      // Client disconnected
       System.out.println("Client disconnected: " + clientChannel.getRemoteAddress());
       clientChannel.close();
       return;
@@ -71,15 +61,29 @@ public class Main {
 
     buffer.flip();
     String message = new String(buffer.array(), 0, buffer.limit()).trim();
-    System.out.println("Received: " + message + "...");
+    System.out.println("Received: " + message);
 
-    // RESP Parsing: Check for '*1 $4 PING'
-    if (message.endsWith("PING")) {
-      clientChannel.write(ByteBuffer.wrap("+PONG\r\n".getBytes())); // Simple string response
-    } else {
-      clientChannel.write(ByteBuffer.wrap("-ERROR unknown command\r\n".getBytes())); // RESP error response
-    }
+    String response = processCommand(message);
+    clientChannel.write(ByteBuffer.wrap(response.getBytes()));
   }
 
+  private static String processCommand(String message) {
+    // Parse RESP message
+    String[] lines = message.split("\r\n");
+    if (lines.length < 2 || !lines[0].startsWith("*")) {
+      return "-ERROR invalid RESP format\r\n";
+    }
 
+    int numElements = Integer.parseInt(lines[0].substring(1)); // Parse array length
+    if (numElements == 1 && lines.length >= 3 && "$4".equals(lines[1]) && "PING".equalsIgnoreCase(lines[2])) {
+      return "+PONG\r\n"; // Respond to PING
+    }
+
+    if (numElements == 2 && lines.length >= 5 && "ECHO".equalsIgnoreCase(lines[2])) {
+      String argument = lines[4];
+      return "$" + argument.length() + "\r\n" + argument + "\r\n"; // Respond to ECHO
+    }
+
+    return "-ERROR unknown command\r\n";
+  }
 }
