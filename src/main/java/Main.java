@@ -20,6 +20,7 @@ public class Main { // class containg entry point
 
       // Event loop
       while (true) {
+        
         selector.select(); // blocks until at least one event is ready
 
         // Process events
