@@ -8,7 +8,10 @@ import java.nio.channels.SocketChannel; // A non-blocking client-side channe
 import java.util.Iterator; // Used to iterate over collections (e.g., selected keys in the Selector)
 
 public class Main { // class containg entry point
+
   public static void main(String[] args) { // entry point of the application
+    Store store = new Store(); // Holds key value pairs using a hashmap
+
     try (Selector selector = Selector.open(); // creates selector for managing multiple channels
         ServerSocketChannel serverSocketChannel = ServerSocketChannel.open()) { // opens server-side socket channel
 
@@ -20,7 +23,7 @@ public class Main { // class containg entry point
 
       // Event loop
       while (true) {
-        
+
         selector.select(); // blocks until at least one event is ready
 
         // Process events
@@ -32,7 +35,7 @@ public class Main { // class containg entry point
           if (key.isAcceptable()) { // checks if event is a new client connection
             handleAccept(key);
           } else if (key.isReadable()) { // checks if event is data ready to be read
-            handleRead(key);
+            handleRead(key, store);
           }
         }
       }
@@ -49,7 +52,7 @@ public class Main { // class containg entry point
     System.out.println("Accepted new connection from " + clientChannel.getRemoteAddress());
   }
 
-  private static void handleRead(SelectionKey key) throws IOException {
+  private static void handleRead(SelectionKey key, Store store) throws IOException {
     SocketChannel clientChannel = (SocketChannel) key.channel(); // retrieves client channel from key
     ByteBuffer buffer = ByteBuffer.allocate(1024); // allocates 1024 bytes to read data
 
@@ -65,11 +68,11 @@ public class Main { // class containg entry point
     String message = new String(buffer.array(), 0, buffer.limit()).trim(); // conversts buffer content to string
     System.out.println("Received: " + message2);
 
-    String response = processCommand(message); // process client message
+    String response = processCommand(message, store); // process client message
     clientChannel.write(ByteBuffer.wrap(response.getBytes())); // send response back to client
   }
 
-  private static String processCommand(String message) {
+  private static String processCommand(String message, Store store) {
     // Parse RESP message
     String[] lines = message.split("\r\n"); // split message using RESP \r\n delimiter
     System.out.println("lines size is: " + lines.length);
@@ -82,9 +85,28 @@ public class Main { // class containg entry point
       return "+PONG\r\n"; // Respond to PING
     }
 
-    if (numElements == 2 && lines.length >= 5 && "ECHO".equalsIgnoreCase(lines[2])) {
-      String argument = lines[4];
-      return "$" + argument.length() + "\r\n" + argument + "\r\n"; // Respond to ECHO
+    if (numElements == 2 && lines.length >= 5) {
+      if ("ECHO".equalsIgnoreCase(lines[2])) { // handle ECHO command
+        String argument = lines[4];
+        return "$" + argument.length() + "\r\n" + argument + "\r\n"; // Respond to ECHO
+      }
+
+      if ("GET".equalsIgnoreCase(lines[2])) { // handle GET command
+        String key = lines[4];
+        if (!store.containsItem(key)) { // if the store doesn't contain the item
+          return "$-1\r\n";
+        } else {
+          String value = store.getItem(key);
+          return "$" + value.length() + "\r\n" + value + "\r\n"; // return the value RESP formatted
+        }
+      }
+    }
+
+    if (numElements == 3 && lines.length >= 7 && "SET".equalsIgnoreCase(lines[2])) { // Handle SET command
+      String key = lines[4];
+      String value = lines[6];
+      store.addItem(key, value);
+      return "+OK\r\n"; // Added the value to the Store
     }
 
     return "-ERROR unknown command\r\n";
