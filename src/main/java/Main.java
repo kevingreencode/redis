@@ -11,6 +11,22 @@ public class Main { // class containg entry point
   public static void main(String[] args) { // entry point of the application
     Store store = new Store(); // Holds key value pairs using a hashmap
 
+    System.out.println("args.length: " + args.length);
+    if (args.length > 0) {
+      for (int i = 0; i < args.length; i++) {
+        String arg = args[i];
+        if (arg.startsWith("--")) {
+          if (i + 1 >= args.length)
+            return;
+          String key = arg.substring(2);
+          String value = args[i + 1];
+          i++;
+          System.out.println("Added key: " + key + " Value: " + value);
+          store.addItem(key, value);
+        }
+      }
+    }
+
     try (Selector selector = Selector.open(); // creates selector for managing multiple channels
         ServerSocketChannel serverSocketChannel = ServerSocketChannel.open()) { // opens server-side socket channel
 
@@ -91,29 +107,24 @@ public class Main { // class containg entry point
       }
 
       if ("GET".equalsIgnoreCase(lines[2])) { // handle GET command
-        String key = lines[4];
-        if (!store.containsItem(key)) { // if the store doesn't contain the item
-          System.out.println("Store doesn't contain key: " + key);
-          return "$-1\r\n";
-        } else {
-          Record record = store.getItem(key);
-          if (record.hasExpired()) {
-            System.out.println("Record has expired");
-            return "$-1\r\n";
-          } else {
-            System.out.println("Returning key: " + key);
-            return "$" + record.getValue().length() + "\r\n" + record.getValue() + "\r\n"; // return the value RESP
-                                                                                           // formatted
-          }
-        }
+        return handleGet(lines[4], store);
       }
     }
 
-    if (numElements == 3 && lines.length >= 7 && "SET".equalsIgnoreCase(lines[2])) { // Handle SET command
-      String key = lines[4];
-      String value = lines[6];
-      store.addItem(key, value);
-      return "+OK\r\n"; // Added the value to the Store
+    if (numElements == 3 && lines.length >= 7) {
+      if ("SET".equalsIgnoreCase(lines[2])) { // Handle SET command
+        String key = lines[4];
+        String value = lines[6];
+        store.addItem(key, value);
+        return "+OK\r\n"; // Added the value to the Store
+      }
+
+      if ("CONFIG".equalsIgnoreCase(lines[2]) && "GET".equalsIgnoreCase(lines[4])) {
+        String key = lines[6];
+        String value = handleGet(key, store);
+        String[] results = { key, value };
+        return formatRESP(results);
+      }
     }
     // '*5\r\n$3\r\nSET\r\n$4\r\npear\r\n$10\r\nstrawberry\r\n$2\r\npx\r\n$3\r\n100\r\n'
     if (numElements == 5 && lines.length >= 11 && "PX".equalsIgnoreCase(lines[8])) {
@@ -127,4 +138,36 @@ public class Main { // class containg entry point
     return "-ERROR unknown command\r\n";
   }
 
+  private static String handleGet(String key, Store store) {
+    if (!store.containsItem(key)) { // if the store doesn't contain the item
+      System.out.println("Store doesn't contain key: " + key);
+      return "$-1\r\n";
+    } else {
+      Record record = store.getItem(key);
+      if (record.hasExpired()) {
+        System.out.println("Record has expired");
+        return "$-1\r\n";
+      } else {
+        System.out.println("Returning key: " + key);
+        return "$" + record.getValue().length() + "\r\n" + record.getValue() + "\r\n"; // return the value RESP
+                                                                                       // formatted
+      }
+    }
+  }
+
+  public static String formatRESP(String[] array) {
+    
+    StringBuilder sb = new StringBuilder();
+    sb.append("*");
+    sb.append(array.length);
+    sb.append("\r\n");
+    sb.append("$");
+    sb.append(array[0].length());
+    sb.append("\r\n");
+    sb.append(array[0]);
+    sb.append("\r\n");
+    sb.append(array[1]);
+
+    return sb.toString();
+  }
 }
