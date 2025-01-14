@@ -93,10 +93,18 @@ public class Main { // class containg entry point
       if ("GET".equalsIgnoreCase(lines[2])) { // handle GET command
         String key = lines[4];
         if (!store.containsItem(key)) { // if the store doesn't contain the item
+          System.out.println("Store doesn't contain key: " + key);
           return "$-1\r\n";
         } else {
-          String value = store.getItem(key);
-          return "$" + value.length() + "\r\n" + value + "\r\n"; // return the value RESP formatted
+          Record record = store.getItem(key);
+          if (record.hasExpired()) {
+            System.out.println("Record has expired");
+            return "$-1\r\n";
+          } else {
+            System.out.println("Returning key: " + key);
+            return "$" + record.getValue().length() + "\r\n" + record.getValue() + "\r\n"; // return the value RESP
+                                                                                           // formatted
+          }
         }
       }
     }
@@ -106,6 +114,14 @@ public class Main { // class containg entry point
       String value = lines[6];
       store.addItem(key, value);
       return "+OK\r\n"; // Added the value to the Store
+    }
+    // '*5\r\n$3\r\nSET\r\n$4\r\npear\r\n$10\r\nstrawberry\r\n$2\r\npx\r\n$3\r\n100\r\n'
+    if (numElements == 5 && lines.length >= 11 && "PX".equalsIgnoreCase(lines[8])) {
+      String key = lines[4];
+      String value = lines[6];
+      String expiry = lines[10];
+      store.addItem(key, value, expiry);
+      return "+OK\r\n";
     }
 
     return "-ERROR unknown command\r\n";
