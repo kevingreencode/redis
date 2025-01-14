@@ -8,7 +8,6 @@ import java.nio.channels.SocketChannel; // A non-blocking client-side channe
 import java.util.Iterator; // Used to iterate over collections (e.g., selected keys in the Selector)
 
 public class Main { // class containg entry point
-
   public static void main(String[] args) { // entry point of the application
     Store store = new Store(); // Holds key value pairs using a hashmap
 
