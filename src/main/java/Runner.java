@@ -112,9 +112,7 @@ public class Runner {
     }
 
     if ("KEYS".equalsIgnoreCase(lines[2])) {
-      String value = RDBReader.readRdbFile(fullPath);
-      String result = RESPFormatter.formatSingleRESP(value);
-      return result;
+      return RDBReader.readRdbFile(fullPath, store);
     }
 
     return "";

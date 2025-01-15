@@ -25,4 +25,19 @@ public class RESPFormatter {
         sb.append("\r\n");
         return sb.toString();
     }
+
+    public static String formatLongArray(String[] strings){
+        StringBuilder sb = new StringBuilder();
+        sb.append("*");
+        sb.append(strings.length);
+        sb.append("\r\n");
+        for (int i = 0; i < strings.length; i++){
+            sb.append("$");
+            sb.append(strings[i].length());
+            sb.append("\r\n");
+            sb.append(strings[i]);
+            sb.append("\r\n");
+        }
+        return sb.toString();
+    }
 }

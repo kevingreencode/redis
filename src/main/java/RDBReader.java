@@ -2,37 +2,25 @@ import java.io.IOException; // Exception handling for IO operations
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.stream.Stream;
 
 public class RDBReader {
-    public static void storeRdbKeysValues(String file, Store store){
+    public static String readRdbFile(String file, Store store) {
         Path filePath = Path.of(file);
-        KeyValuePair result;
+        String[] resultArray;
         try {
             System.out.println("File: " + file);
             if (!isTextFile(filePath)) {
                 byte[] content = Files.readAllBytes(filePath);
-                result = extractKeyValue(content);
-                store.addItem(result.getKey(), result.getValue());
+                resultArray = extractKeyValue(content, store);
+                System.out.println("resultArray.length: " + resultArray.length);
+                String result = RESPFormatter.formatLongArray(resultArray);
+                System.out.println("Return from readRdbFile: " + result);
+                return result;
             }
         } catch (IOException e) {
             e.printStackTrace();
-        }
-
-    }
-    public static String readRdbFile(String file) {
-        Path filePath = Path.of(file);
-        KeyValuePair result;
-        try {
-            System.out.println("File: " + file);
-            if (!isTextFile(filePath)) {
-                byte[] content = Files.readAllBytes(filePath);
-                result = extractKeyValue(content);
-                return result.getKey();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-
         }
         return "-1";
     }
@@ -53,7 +41,8 @@ public class RDBReader {
         }
     }
 
-    public static KeyValuePair extractKeyValue(byte[] content) {
+    public static String[] extractKeyValue(byte[] content, Store store) {
+        ArrayList<String> keyList = new ArrayList<>();
         System.out.println("Extracting key-value pairs");
         int index = 0;
         // skip header (first 9 bytes)
@@ -69,14 +58,21 @@ public class RDBReader {
         // skip type encoding 00 for string
         index += 1;
         // get key string length
-        int keyLength = content[index++];
-        String key = new String(content, index, keyLength);
-        index += keyLength;
-        // get value string length
-        int valueLength = content[index++];
-        String value = new String(content, index, valueLength);
-        KeyValuePair result = new KeyValuePair(key, value);
-        return result;
+
+        while (index < content.length && content[index] != (byte) 0xFF) {
+            int keyLength = content[index++];
+            String key = new String(content, index, keyLength);
+            index += keyLength;
+            if (key.length() == 0) continue;
+            // get value string length
+            int valueLength = content[index++];
+            String value = new String(content, index, valueLength);
+            index += valueLength;
+            keyList.add(key);
+            store.addItem(key, value);
+        }
+        System.out.println("Number of keys keyList.size(): " + keyList.size());
+        return keyList.toArray(new String[0]);
     }
 
     public static void listFilesWithContents(String path) {
@@ -88,7 +84,6 @@ public class RDBReader {
                         try {
                             // Print the file path
                             System.out.println("File: " + file);
-
                             // Check if the file is a text file (a simple check)
                             if (isTextFile(file)) {
                                 // Read and print the content of the text file

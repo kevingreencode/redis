@@ -15,7 +15,7 @@ public class DirHandler {
             fullPath = args[1] + "/" + args[3];
         }
         if (fullPath.length() != 0){
-            RDBReader.storeRdbKeysValues(fullPath,store);
+            RDBReader.readRdbFile(fullPath,store);
         }
     }
 }
