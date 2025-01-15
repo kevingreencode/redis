@@ -7,13 +7,13 @@ import java.util.stream.Stream;
 public class RDBReader {
     public static String readRdbFile(String file) {
         Path filePath = Path.of(file);
-        String result;
+        KeyValuePair result;
         try {
             System.out.println("File: " + file);
             if (!isTextFile(filePath)) {
                 byte[] content = Files.readAllBytes(filePath);
                 result = extractKeyValue(content);
-                return result;
+                return result.getKey();
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -38,7 +38,7 @@ public class RDBReader {
         }
     }
 
-    public static String extractKeyValue(byte[] content) {
+    public static KeyValuePair extractKeyValue(byte[] content) {
         System.out.println("Extracting key-value pairs");
         int index = 0;
 
@@ -61,8 +61,8 @@ public class RDBReader {
         // get value string length
         int valueLength = content[index++];
         String value = new String(content, index, valueLength);
-
-        return key;
+        KeyValuePair result = new KeyValuePair(key, value);
+        return result;
     }
 
     public static void listFilesWithContents(String path) {
