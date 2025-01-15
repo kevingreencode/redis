@@ -5,6 +5,21 @@ import java.nio.file.Paths;
 import java.util.stream.Stream;
 
 public class RDBReader {
+    public static void storeRdbKeysValues(String file, Store store){
+        Path filePath = Path.of(file);
+        KeyValuePair result;
+        try {
+            System.out.println("File: " + file);
+            if (!isTextFile(filePath)) {
+                byte[] content = Files.readAllBytes(filePath);
+                result = extractKeyValue(content);
+                store.addItem(result.getKey(), result.getValue());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
     public static String readRdbFile(String file) {
         Path filePath = Path.of(file);
         KeyValuePair result;
@@ -41,7 +56,6 @@ public class RDBReader {
     public static KeyValuePair extractKeyValue(byte[] content) {
         System.out.println("Extracting key-value pairs");
         int index = 0;
-
         // skip header (first 9 bytes)
         index += 9;
         // find FE which marks database section
@@ -67,7 +81,6 @@ public class RDBReader {
 
     public static void listFilesWithContents(String path) {
         Path dirPath = Paths.get(path); // Replace with your directory path
-
         System.out.println("Printing files...");
         try (Stream<Path> paths = Files.list(dirPath)) {
             paths.filter(Files::isRegularFile) // Only regular files (exclude directories)
@@ -99,5 +112,4 @@ public class RDBReader {
         }
         System.out.println("End of printing files.");
     }
-
 }
