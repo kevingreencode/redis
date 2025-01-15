@@ -36,7 +36,8 @@ public class Record {
             return false;
         long currentTimeMillis = System.currentTimeMillis();
         boolean result = (currentTimeMillis - createdTime) >= expiry;
-        System.out.println("expiry: " + expiry + " currentTimeMillis: " + currentTimeMillis + " createdTime: " + createdTime + " result: " + result);
+        System.out.println("expiry: " + expiry + " currentTimeMillis: " + currentTimeMillis + " createdTime: "
+                + createdTime + " result: " + result);
         long elapsedTime = currentTimeMillis - createdTime;
         System.out.println("Elapsed time: " + elapsedTime);
         return result;
