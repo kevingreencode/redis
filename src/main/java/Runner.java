@@ -8,15 +8,15 @@ import java.nio.channels.SocketChannel; // A non-blocking client-side channe
 import java.util.Iterator; // Used to iterate over collections (e.g., selected keys in the Selector)
 
 public class Runner {
-  public static void runService(String fullPath, Store store) {
+  public static void runService(String fullPath, Store store, int port) {
     try (Selector selector = Selector.open(); // creates selector for managing multiple channels
         ServerSocketChannel serverSocketChannel = ServerSocketChannel.open()) { // opens server-side socket channel
 
       // Configure the server channel to be non-blocking
       serverSocketChannel.configureBlocking(false); // sets socket to non-blocking mode
-      serverSocketChannel.bind(new InetSocketAddress(6379)); // binds server socket to port 6379
+      serverSocketChannel.bind(new InetSocketAddress(port)); // binds server socket to port 6379
       serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT); // registers to connection-accept events
-      System.out.println("Server started on port 6379...");
+      System.out.println("Server started on port " + port + "...");
 
       // Event loop
       while (true) {
