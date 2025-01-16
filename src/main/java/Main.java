@@ -3,6 +3,8 @@ public class Main { // class containg entry point
 
     Store store = new Store(); // Holds key value pairs using a hashmap
     store.addItem("role", "master");
+    store.addItem("master_replid", "8371b4fb1155b71f4a04d3e1bc3e18c4a990aeeb");
+    store.addItem("master_repl_offset", "0");
     String fullPath = "";
     int port = 0;
 
