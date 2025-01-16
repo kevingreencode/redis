@@ -1,7 +1,7 @@
 public class ArgumentHandler {
-    public static boolean containsReplicaof(String[] args){
+    public static boolean containsFlag(String[] args, String flag){
         for (String arg : args){
-            if (arg.equals("--replicaof")){
+            if (arg.equalsIgnoreCase(flag)){
                 return true;
             }
         }

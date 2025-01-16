@@ -116,7 +116,9 @@ public class Runner {
     }
 
     if ("INFO".equalsIgnoreCase(lines[2])) {
-      return "$11\r\nrole:master\r\n"; // Respond to ECHO
+      Record record = store.getItem("role");
+      String response = "role:" + record.getValue();
+      return "$" + response.length() + "\r\n" + response + "\r\n"; // Respond to ECHO
     }
 
     return "";

@@ -11,7 +11,14 @@ public class Main { // class containg entry point
       port = Integer.parseInt(args[1]);
     }
     if (args.length > 2) { // TODO: Generalize the argument handler
-      if (ArgumentHandler.containsReplicaof(args)){
+      if (ArgumentHandler.containsFlag(args, "--port")){
+        int i = 0;
+        while (!args[i].equalsIgnoreCase("--port")){
+          i++;
+        }
+        port = Integer.parseInt(args[++i]);
+      }
+      if (ArgumentHandler.containsFlag(args,"--replicaof")){
         store.addItem("role", "slave");
       } else {
         DirHandler.handleDirFiles(args, store);
