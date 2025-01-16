@@ -22,7 +22,7 @@ public class RDBReader {
                 return result;
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Couldn't open file, it may not exist");
         }
         return "-1";
     }
