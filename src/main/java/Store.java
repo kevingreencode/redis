@@ -13,6 +13,7 @@ public class Store {
     }
 
     public void addItem(String key, String value, String expiry) {
+        System.out.println(">>>>>>Adding item key: " + key + " value: " + value + " expiry: " + expiry);
         Record record = new Record(value, expiry);
         storage.put(key, record);
     }

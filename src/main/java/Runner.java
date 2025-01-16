@@ -139,8 +139,8 @@ public class Runner {
     if ("PX".equalsIgnoreCase(lines[8])) {
       String key = lines[4];
       String value = lines[6];
-      String expiry = lines[10];
-      store.addItem(key, value, expiry);
+      long expiry = System.currentTimeMillis() + Long.parseLong(lines[10]);
+      store.addItem(key, value, String.valueOf(expiry));
       return "+OK\r\n";
     }
     return "";

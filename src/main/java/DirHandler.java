@@ -13,6 +13,9 @@ public class DirHandler {
                 store.addItem(key, value);
             }
             fullPath = args[1] + "/" + args[3];
+            System.out.println("***********************START************************");
+            RDBReader.listFilesWithContents(args[1]);
+            System.out.println("*************************END**********************");
         }
         if (fullPath.length() != 0){
             RDBReader.readRdbFile(fullPath,store);
