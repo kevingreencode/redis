@@ -118,7 +118,15 @@ public class Runner {
     if ("INFO".equalsIgnoreCase(lines[2])) {
       Record record = store.getItem("role");
       String response = "role:" + record.getValue();
-      return "$" + response.length() + "\r\n" + response + "\r\n"; // Respond to ECHO
+      ;
+      if (record.getValue().equalsIgnoreCase("master")) {
+        String masterReplOffset = "master_repl_offset:" + store.getItem("master_repl_offset").getValue();
+        String masterReplId = "master_replid:" + store.getItem("master_replid").getValue();
+        response = response + "\r\n" + masterReplOffset + "\r\n" + masterReplId;
+        System.out.print("RESPONSE!!!" + response);
+      }
+      return "$" + response.length() + "\r\n" + response + "\r\n";
+
     }
 
     return "";

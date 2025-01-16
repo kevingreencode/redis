@@ -3,8 +3,8 @@ public class Main { // class containg entry point
 
     Store store = new Store(); // Holds key value pairs using a hashmap
     store.addItem("role", "master");
-    store.addItem("master_replid", "8371b4fb1155b71f4a04d3e1bc3e18c4a990aeeb");
     store.addItem("master_repl_offset", "0");
+    store.addItem("master_replid", "8371b4fb1155b71f4a04d3e1bc3e18c4a990aeeb");
     String fullPath = "";
     int port = 0;
 
@@ -22,6 +22,8 @@ public class Main { // class containg entry point
       }
       if (ArgumentHandler.containsFlag(args,"--replicaof")){
         store.addItem("role", "slave");
+        store.removeItem("master_replid");
+        store.removeItem("master_repl_offset");
       } else {
         DirHandler.handleDirFiles(args, store);
         fullPath = args[1] + "/" + args[3];
