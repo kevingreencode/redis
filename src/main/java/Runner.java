@@ -115,6 +115,10 @@ public class Runner {
       return RDBReader.readRdbFile(fullPath, store);
     }
 
+    if ("INFO".equalsIgnoreCase(lines[2])) {
+      return "$11\r\nrole:master\r\n"; // Respond to ECHO
+    }
+
     return "";
   }
 
