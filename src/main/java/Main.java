@@ -24,6 +24,7 @@ public class Main { // class containg entry point
         store.addItem("role", "slave");
         store.removeItem("master_replid");
         store.removeItem("master_repl_offset");
+        Communicator.connectToPeer("localhost",6379);
       } else {
         DirHandler.handleDirFiles(args, store);
         fullPath = args[1] + "/" + args[3];
