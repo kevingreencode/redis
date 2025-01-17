@@ -12,7 +12,8 @@ public class Communicator {
              BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
 
             System.out.println("Connected to peer at " + host + ":" + port);
-            writer.println("*1\r\n$4\r\nPING\r");
+            writer.print("*1\r\n$4\r\nPING\r\n");
+            writer.flush();
             // Read and print response
             String response = reader.readLine();
             System.out.println("Response from peer: " + response);

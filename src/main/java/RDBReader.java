@@ -12,13 +12,10 @@ public class RDBReader {
         Path filePath = Path.of(file);
         String[] resultArray;
         try {
-            System.out.println("File: " + file);
             if (!isTextFile(filePath)) {
                 byte[] content = Files.readAllBytes(filePath);
                 resultArray = extractKeyValue2(content, store);
-                System.out.println("resultArray.length: " + resultArray.length);
                 String result = RESPFormatter.formatLongArray(resultArray);
-                System.out.println("Return from readRdbFile: " + result);
                 return result;
             }
         } catch (IOException e) {
@@ -45,7 +42,6 @@ public class RDBReader {
 
     public static String[] extractKeyValue(byte[] content, Store store) {
         ArrayList<String> keyList = new ArrayList<>();
-        System.out.println("Extracting key-value pairs");
         int index = 0;
         // skip header (first 9 bytes)
         index += 9;
@@ -63,7 +59,6 @@ public class RDBReader {
 
         while (index < content.length && content[index] != (byte) 0xFF) {
             int keyLength = content[index++];
-            System.out.println("Content length: " + content.length + " index: " + index + " keyLength: " + keyLength);
             String key = new String(content, index, keyLength);
             index += keyLength;
             if (key.length() == 0)
@@ -75,13 +70,11 @@ public class RDBReader {
             keyList.add(key);
             store.addItem(key, value);
         }
-        System.out.println("Number of keys keyList.size(): " + keyList.size());
         return keyList.toArray(new String[0]);
     }
 
     public static String[] extractKeyValue2(byte[] content, Store store) {
         ArrayList<String> keyList = new ArrayList<>();
-        System.out.println("Extracting key-value pairs #2");
 
         int index = 0;
 
@@ -99,13 +92,10 @@ public class RDBReader {
             if (content[index] == (byte) 0xFC) {
                 byte[] bigEndianBytes = convertLittleEndianToBigEndian(readNBytes(content, index, Long.BYTES));
                 expiry = byteArrayToDecimal(bigEndianBytes);
-                System.out.println("#######################expiry: " + expiry);
                 index += Long.BYTES;
                 index += 2; // value type
             }
             int keyLength = content[index++];
-            System.out
-                    .println("Content length: " + content.length + " index: " + index + " keyLength: " + keyLength);
             String key = new String(content, index, keyLength);
             index += keyLength;
             if (key.length() == 0)
@@ -128,8 +118,6 @@ public class RDBReader {
             paths.filter(Files::isRegularFile) // Only regular files (exclude directories)
                     .forEach(file -> {
                         try {
-                            // Print the file path
-                            System.out.println("File: " + file);
                             // Check if the file is a text file (a simple check)
                             if (isTextFile(file)) {
                                 // Read and print the content of the text file

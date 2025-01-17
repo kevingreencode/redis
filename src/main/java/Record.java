@@ -36,7 +36,6 @@ public class Record {
             return false;
         long currentTimeMillis = System.currentTimeMillis();
         boolean result = currentTimeMillis > expiry;
-        System.out.println("expiry: " + expiry + " currentTimeMillis: " + currentTimeMillis + " result: " + result);
         return result;
     }
 }

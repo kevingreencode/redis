@@ -8,7 +8,6 @@ public class Main { // class containg entry point
     String fullPath = "";
     int port = 0;
 
-    System.out.println("args.length: " + args.length);
     if (args.length == 2 && args[0].equalsIgnoreCase("--PORT")){
       port = Integer.parseInt(args[1]);
     }

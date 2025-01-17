@@ -59,7 +59,6 @@ public class Runner {
   private static String processCommand(String message, Store store, String fullPath) {
     // Parse RESP message
     String[] lines = message.split("\r\n"); // split message using RESP \r\n delimiter
-    System.out.println("lines size is: " + lines.length);
     if (lines.length < 2 || !lines[0].startsWith("*")) { // check message follows RESP format
       return "-ERROR invalid RESP format\r\n";
     }
